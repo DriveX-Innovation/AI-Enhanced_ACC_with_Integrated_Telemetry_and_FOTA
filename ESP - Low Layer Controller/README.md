@@ -91,7 +91,8 @@ The ESP32 exchanges data with the Raspberry Pi through a lightweight framed UART
 | 0    | Start Byte (`0xAA`)                     |
 | 1–4  | Target Speed (`float32`, Little Endian) |
 | 5    | Control Flags                           |
-| 6    | End Byte (`0x55`)                       |
+| 6    |  CRC XOR Checksum                       |
+| 7    | End Byte (`0x55`)                       |
 
 ### Control Flags
 
