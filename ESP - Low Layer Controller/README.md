@@ -60,13 +60,16 @@ pio device monitor   (serial monitor)
 
 ## Folder Structure
 
+```
 ESP_Controller/
-  include/     headers
-  src/         implementation (.cpp)
-  lib/         local libraries (if any)
-  test/        PlatformIO test framework (currently unused/placeholder)
-  platformio.ini
-  README.md
+├── include/       # System Headers (.h)
+├── src/           # System implementation (.cpp)
+├── lib/           # Local libraries (if any)
+├── test/          # PlatformIO test framework (currently unused/placeholder)
+├── platformio.ini
+├── README.md       # Project README
+└── STM32F103C6TX\_FLASH.ld # Linker script
+```
 
 Python test/debug scripts used during development are in ../Archive/ESP_Controller_tests/ (real-time plotting, manual UART frame senders, etc.) - kept separate from the firmware since they are host-side tools, not part of the embedded build.
 
