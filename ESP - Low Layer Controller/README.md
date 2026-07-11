@@ -142,15 +142,6 @@ ESP_Controller/
 └── STM32F103C6TX_FLASH.ld      # Linker script
 ```
 
-Development utilities such as UART testing tools and real-time visualization scripts are stored separately in:
-
-```text
-Archive/
-└── ESP_Controller_tests/
-```
-
-These utilities are intended exclusively for development and debugging and are not part of the embedded firmware build.
-
 ---
 
 # Build Instructions
