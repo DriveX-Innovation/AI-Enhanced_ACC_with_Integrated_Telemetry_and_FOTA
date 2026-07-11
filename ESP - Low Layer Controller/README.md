@@ -38,7 +38,7 @@ A 2-second software watchdog resets control if no valid frame is received in tim
 
 ## Sensors
 
-- ACS712 30A current sensor
+- ACS712 5A current sensor
 - LM35 temperature sensor
 - 0-25V voltage divider
 - All share a single ADC handle via getADCHandle() to avoid ESP-IDF single-owner ADC unit restriction
