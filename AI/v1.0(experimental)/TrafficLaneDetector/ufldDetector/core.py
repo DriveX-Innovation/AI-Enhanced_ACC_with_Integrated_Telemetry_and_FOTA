@@ -102,7 +102,7 @@ class LaneDetectBase(abc.ABC):
 	@staticmethod
 	def __adjust_lanes_points(left_lanes_points : list, right_lanes_points : list, image_height : list) -> Tuple[list, list]:
 		# 多项式拟合
-		if (len(left_lanes_points[1]) != 0 ) :
+		if len(left_lanes_points) != 0:
 			leftx, lefty  = list(zip(*left_lanes_points))
 			if len(lefty) > 10:
 				left_fit = np.polyfit(lefty, leftx, 2)
@@ -110,7 +110,7 @@ class LaneDetectBase(abc.ABC):
 				return left_lanes_points, right_lanes_points
 		else :
 			return left_lanes_points, right_lanes_points
-		if (len(right_lanes_points) != 0 ) :
+		if len(right_lanes_points) != 0:
 			rightx, righty  = list(zip(*right_lanes_points))
 			if len(righty) > 10:
 				right_fit = np.polyfit(righty, rightx, 2)
@@ -142,9 +142,9 @@ class LaneDetectBase(abc.ABC):
 
 	def __update_lanes_status(self, lanes_status : list) -> None :
 		self.lane_info._area_status = False
-		if(lanes_status != [] and len(lanes_status) % 2 == 0) :
+		if len(lanes_status) != 0 and len(lanes_status) % 2 == 0:
 			index = len(lanes_status) // 2
-			if(lanes_status[index-1] and lanes_status[index]):
+			if lanes_status[index-1] and lanes_status[index]:
 				self.lane_info._area_status = True
 
 	def __update_lanes_area(self, lanes_points: np.ndarray, img_height: int) -> None :
@@ -155,6 +155,9 @@ class LaneDetectBase(abc.ABC):
 				left_lanes_points, right_lanes_points = self.__adjust_lanes_points(lanes_points[index-1], lanes_points[index], img_height)
 			else :
 				left_lanes_points, right_lanes_points = lanes_points[index-1], lanes_points[index]
+			if len(left_lanes_points) == 0 or len(right_lanes_points) == 0:
+				self.lane_info._area_status = False
+				return
 			self.lane_info._area_points = np.vstack((left_lanes_points, np.flipud(right_lanes_points)))
 
 	@abc.abstractmethod

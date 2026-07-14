@@ -5,7 +5,7 @@ from ufldDetector.ultrafastLaneDetector import UltrafastLaneDetector
 from ufldDetector.ultrafastLaneDetectorV2 import UltrafastLaneDetectorV2
 
 
-video_path = "./temp/test (3).mp4"
+video_path = "./temp/test.mp4"
 model_path = "models/ultra_falst_lane_detection_culane_288x800.onnx"
 model_type = LaneModelType.UFLD_CULANE
 
