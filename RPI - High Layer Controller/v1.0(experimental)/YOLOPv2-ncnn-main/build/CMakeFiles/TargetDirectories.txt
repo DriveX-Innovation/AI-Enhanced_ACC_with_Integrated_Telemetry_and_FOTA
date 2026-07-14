@@ -1,3 +1,0 @@
-/home/drivx/adas-sys/Vehicle-CV-ADAS-master/YOLOPv2-ncnn-main/build/CMakeFiles/yolopv2_ncnn.dir
-/home/drivx/adas-sys/Vehicle-CV-ADAS-master/YOLOPv2-ncnn-main/build/CMakeFiles/edit_cache.dir
-/home/drivx/adas-sys/Vehicle-CV-ADAS-master/YOLOPv2-ncnn-main/build/CMakeFiles/rebuild_cache.dir
