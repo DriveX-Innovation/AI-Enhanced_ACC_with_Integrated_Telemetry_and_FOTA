@@ -38,11 +38,6 @@ it's easier to read, test, and maintain. 🧩
                                   main.py
                              (100 ms control loop)
 ```
-
-> 💡 A rendered, color-coded version of this diagram is available as an
-> interactive widget in the project conversation — click any box there for
-> More detail on that module.
-
 ---
 
 ## 📦 Module Reference
