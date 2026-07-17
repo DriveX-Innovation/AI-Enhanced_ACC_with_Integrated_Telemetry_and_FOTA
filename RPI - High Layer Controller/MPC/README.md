@@ -16,26 +16,26 @@ modules for readability and maintainability.
 ## Architecture
 
 ```
-                         ┌─────────────────────┐
-                         │      config.py       │
-                         │  (all constants)     │
-                         └──────────┬───────────┘
-                                    │
-        ┌───────────────┬──────────┼──────────┬───────────────┐
-        ▼               ▼          ▼          ▼               ▼
-  sensors.py      uart_comm.py  prediction.py  soft_constraints.py
-  (HC-SR04)       (ESP32 link)  (DARE + Fx/Gu)  (headway/velocity)
-        │               │          │          │
-        └───────────────┴────┬─────┴──────────┘
-                              ▼
-                        qp_solver.py
-                        (OSQPSolver)
-                              ▼
-                      mpc_controller.py
-                      (MPCController.step)
-                              ▼
-                          main.py
-                    (50 ms control loop)
+                                 config.py
+                              (all constants)
+                                   │
+        ┌───────────────┬──────────┴──────────┬───────────────────┐
+        ▼               ▼                     ▼                   ▼
+   sensors.py       uart_comm.py          prediction.py     soft_constraints.py
+   (HC-SR04)         (ESP32 link)          (DARE + Fx/Gu)     (headway / velocity)
+        │                │                     │                    │
+        └────────────────┴──────────┬──────────┴────────────────────┘
+                                    ▼
+                                qp_solver.py
+                                (OSQPSolver)
+                                     │
+                                     ▼
+                             mpc_controller.py
+                             (MPCController.step)
+                                     │
+                                     ▼
+                                  main.py
+                             (50 ms control loop)
 ```
 
 ## Module Reference
