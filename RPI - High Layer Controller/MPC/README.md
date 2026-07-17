@@ -20,7 +20,7 @@ it's easier to read, test, and maintain. 🧩
                                 config.py
                               (all constants)
                                     │
-        ┌────────────────┬──────────┴───────────┬───────────────────┐
+        ┌────────────────┬──────────┴──────────┬────────────────────┐
         ▼                ▼                     ▼                    ▼
    sensors.py       uart_comm.py          prediction.py     soft_constraints.py
    (HC-SR04)         (ESP32 link)          (DARE + Fx/Gu)     (headway / velocity)
