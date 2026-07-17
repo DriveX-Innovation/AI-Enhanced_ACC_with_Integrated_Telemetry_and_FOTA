@@ -217,17 +217,15 @@ Both directions use the same simple framed format:
  
 ```
 mpc_modules/
-├── config.py                 ⚙️   ~90 lines   no internal imports (base module)
-├── sensors.py                 📡   ~55 lines   imports: config? no — standalone
-├── uart_comm.py                 🔗   ~165 lines  imports: config
-├── prediction.py                  📐   ~85 lines   imports: (none — pure math)
-├── soft_constraints.py              🛟   ~50 lines   imports: config
-├── qp_solver.py                       🧮   ~100 lines  imports: (none — pure math)
-├── mpc_controller.py                    🎛️   ~80 lines   imports: config, prediction,
-│                                                          soft_constraints, qp_solver
-├── main.py                                ▶️   ~215 lines  imports: config, uart_comm,
-│                                                            sensors, mpc_controller
-└── README.md                                📖   this file
+├── config.py                 
+├── sensors.py                 
+├── uart_comm.py                 
+├── prediction.py                  
+├── soft_constraints.py              
+├── qp_solver.py                       
+├── mpc_controller.py                   
+├── main.py                                                                              
+└── README.md                                
 ```
 ---
 
