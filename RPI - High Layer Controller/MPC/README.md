@@ -6,12 +6,6 @@ Adaptive Cruise Control system.
 - 🧠 Runs on the **Raspberry Pi 5** (upper layer)
 - ⚡ Solves a constrained QP every **100 ms** using **OSQP**
 - 🔌 Sends the resulting speed command to the **ESP32** (lower-layer PID) over UART
-
-This folder is the modularized version of the original monolithic
-`mpc_osqp.py` script. Nothing about the logic, tuning, or control flow has
-changed — it's just been split into clean, single-responsibility files so
-it's easier to read, test, and maintain. 🧩
-
 ---
 
 ## 🗺️ Architecture
@@ -69,6 +63,23 @@ Quick cheat sheet — what each file is for, in one line:
 - **Hard limits:** acceleration range + jerk (smoothness) limit 🚧
 - **Soft limits:** safe following distance + speed range 🛡️
 - **Stability guarantee:** DARE-based terminal cost ✅
+
+---
+### 🔍 Deep dive — function by function
+
+| Constant | Value | What it controls |
+|---|---|---|
+| `Ts` | 0.1 s | Control loop period (100 ms) |
+| `A`, `B`, `Bd` | matrices | Discrete-time plant dynamics |
+| `Np`, `Nc` | 20, 5 | Prediction / control horizon lengths |
+| `Q`, `R` | diag(250, 100), diag(0.1) | Tracking-error vs. effort weighting |
+| `rho_headway`, `rho_velocity` | 1500, 500 | Soft-constraint penalty strength |
+| `a_min`, `a_max` | −0.05, 0.10 m/s² | Hard acceleration bounds |
+| `da_max` | 0.15 m/s² | Max change in acceleration per step (jerk limit) |
+| `d_safe`, `tg` | 0.2 m, 0.15 s | Base safe distance + time-gap for the CTG model |
+| `SOF`, `EOF` | 0xAA, 0x55 | UART frame start/end delimiters |
+| `BAUDRATE`, `TIMEOUT` | 115200, 0.1 s | UART link speed and read timeout |
+
 
 ---
 
@@ -173,6 +184,52 @@ repeats next cycle (that's the "receding horizon" in MPC). 🔁
 6. ⏱️ **Sleep** just enough to hold a steady 100 ms rhythm.
 
 ---
+ 
+## 🔌 UART Wire Protocol
+ 
+Both directions use the same simple framed format:
+ 
+**Command frame (Raspberry Pi → ESP32):**
+ 
+| Byte(s) | Field | Type | Meaning |
+|---|---|---|---|
+| 0 | `SOF` | `0xAA` | Start of frame |
+| 1–4 | speed | `float32` (little-endian) | Target ego speed [m/s] |
+| 5 | flags | `uint8` | Bit 0 = cut-in flag, Bit 1 = lane-curvature flag |
+| 6 | `EOF` | `0x55` | End of frame |
+ 
+**Telemetry frame (ESP32 → Raspberry Pi):**
+ 
+| Byte(s) | Field | Type | Meaning |
+|---|---|---|---|
+| 0 | `SOF` | `0xAA` | Start of frame |
+| 1–4 | speed | `float32` (little-endian) | Measured wheel speed [m/s] |
+| 5 | `EOF` | `0x55` | End of frame |
+ 
+- 📶 Baud rate: **115,200 bps**
+- ⏱️ Read timeout: **100 ms** (lets the listener thread poll the shutdown flag regularly)
+- 🧪 Every incoming frame is validated: correct `SOF`/`EOF`, correct length, and speed within `[0.0, v_max]` — anything else is silently discarded and logged.
+---
+ 
+## 🗂️ File Structure
+ 
+### 📁 Module folder layout
+ 
+```
+mpc_modules/
+├── config.py                 ⚙️   ~90 lines   no internal imports (base module)
+├── sensors.py                 📡   ~55 lines   imports: config? no — standalone
+├── uart_comm.py                 🔗   ~165 lines  imports: config
+├── prediction.py                  📐   ~85 lines   imports: (none — pure math)
+├── soft_constraints.py              🛟   ~50 lines   imports: config
+├── qp_solver.py                       🧮   ~100 lines  imports: (none — pure math)
+├── mpc_controller.py                    🎛️   ~80 lines   imports: config, prediction,
+│                                                          soft_constraints, qp_solver
+├── main.py                                ▶️   ~215 lines  imports: config, uart_comm,
+│                                                            sensors, mpc_controller
+└── README.md                                📖   this file
+```
+---
 
 ## 🛠️ Requirements
 
@@ -200,7 +257,29 @@ python3 main.py
 Press `Ctrl+C` to stop safely — it sends a final zero-speed command,
 shuts down the listener thread, and closes the UART port cleanly. ✅
 
+--- 
+## 🩺 Troubleshooting
+ 
+- ❌ **"Cannot open ESP32 UART"** — check the ESP32 is wired to `/dev/ttyAMA0`
+  (in `config.py`), and that the Pi's serial console is disabled (it competes
+  for the same UART pins).
+- 🕳️ **Gap always shows "MODEL" instead of "SENSOR" in the logs** — the
+  HC-SR04 is returning `None`. Check wiring on GPIO 23 (trigger) / GPIO 24
+  (echo), and make sure the target is within 0.05–4.0 m.
+- 🐌 **"Loop overrun" warnings** — the 100 ms budget was missed, usually
+  because OSQP took too long to converge or a blocking call snuck into the
+  main loop. Check `max_iter` in `qp_solver.py` and confirm nothing besides
+  `esp_listener` is reading from the UART port.
+- 🚫 **ESP32 never receiving frames** — verify the flag byte encoding
+  (`cut_in` in bit 0, `lane_curve` in bit 1) matches what the ESP32 firmware
+  expects, and double check the baud rate matches on both ends.
+- 🧊 **Speed stuck at 0** — the software watchdog on the ESP32 side zeroes
+  the target if it hasn't seen a valid frame in a while; confirm
+  `send_uart_ESP()` is actually being called every cycle (check the log line
+  for the cut-in/lane-curve print statement).
 ---
+
+
 
 ## 📝 Notes
 
